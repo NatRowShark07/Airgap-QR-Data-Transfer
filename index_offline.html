@@ -10149,7 +10149,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       color: var(--primary);
     }
 
-    /* Dedicated Center QR Stage */
+    /* Center QR Container */
     #viewport-container {
       width: 300px;
       height: 300px;
@@ -10171,7 +10171,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     }
     #qrcode-view img { width: 100%; height: 100%; object-fit: contain; }
 
-    /* Small Live Camera Preview in Bottom Corner so iOS never halts the video */
+    /* Live Mini Camera Monitor */
     #cam-monitor {
       position: fixed;
       bottom: 70px;
@@ -10179,17 +10179,18 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       width: 80px;
       height: 80px;
       border-radius: 12px;
-      border: 2px solid var(--primary);
+      border: 3px solid var(--primary);
       overflow: hidden;
       background: #000;
       z-index: 100;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      transition: border-color 0.15s ease;
     }
     #video-view {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* Mirror selfie view */
+      transform: scaleX(-1);
     }
     #hidden-canvas { display: none; }
 
@@ -10206,6 +10207,17 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     .progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.15s ease; }
     #missing-tags { display: flex; gap: 4px; flex-wrap: wrap; max-height: 36px; overflow: hidden; margin-top: 4px; }
     .tag { font-size: 0.65rem; font-family: monospace; background: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+    
+    #debug-log {
+      font-size: 0.68rem;
+      font-family: monospace;
+      color: #cbd5e1;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      word-break: break-all;
+      margin-top: 4px;
+    }
 
     .controls { width: 100%; max-width: 340px; margin-bottom: 8px; }
     button {
@@ -10226,7 +10238,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
   <header>
     <h1>Optical Air-Gap Duplex</h1>
-    <div id="status-pill">Initializing Selfie Camera...</div>
+    <div id="status-pill">Initializing Camera...</div>
   </header>
 
   <!-- Central Dedicated QR Code Display -->
@@ -10234,7 +10246,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     <div id="qrcode-view"></div>
   </div>
 
-  <!-- Live Mini Camera Monitor (Prevents iOS Video Stalling) -->
+  <!-- Live Mini Camera Monitor -->
   <div id="cam-monitor">
     <video id="video-view" autoplay playsinline webkit-playsinline muted></video>
   </div>
@@ -10251,12 +10263,13 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     </div>
     <div class="hud-row">
       <span id="hud-percent" style="font-size: 0.75rem; font-weight: bold;">0%</span>
-      <span id="scan-status" style="font-size: 0.75rem; color: var(--text-muted);">Camera scanning...</span>
+      <span id="scan-status" style="font-size: 0.75rem; color: var(--text-muted);">Scanning</span>
     </div>
     <div id="missing-container" style="display: none;">
       <div style="font-size: 0.7rem; color: var(--danger); margin-bottom: 2px;">Missing Packets:</div>
       <div id="missing-tags"></div>
     </div>
+    <div id="debug-log">Last Scanned: (none)</div>
   </div>
 
   <div class="controls">
@@ -10264,10 +10277,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   </div>
 
   <script>
-    // --- Pre-shared Password Authentication ---
     const AUTH_KEY = "xnTTp2rHtQKmZ2hB0m9pOxxnsApAdmrN\n85jGqGsV7X1f5EGtW0VXCqjgFOExOvyY";
 
-    // --- Base85 Alphabet (RFC 1924 standard) ---
+    // Base85 Decoder
     const B85_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
     const B85_MAP = {};
     for (let i = 0; i < B85_CHARS.length; i++) B85_MAP[B85_CHARS[i]] = i;
@@ -10300,7 +10312,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       return new Uint8Array(out);
     }
 
-    // --- State Variables ---
     let qrGenerator = null;
     let video = document.getElementById("video-view");
     let canvas = document.getElementById("hidden-canvas");
@@ -10315,9 +10326,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
     const statusPill = document.getElementById("status-pill");
     const scanStatus = document.getElementById("scan-status");
+    const debugLog = document.getElementById("debug-log");
     const qrView = document.getElementById("qrcode-view");
 
-    // Initialize QR Code Generator
     qrGenerator = new QRCode(qrView, {
       text: AUTH_KEY,
       width: 270,
@@ -10338,7 +10349,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       }
     }
 
-    // --- Camera Initialization ---
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -10360,11 +10370,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         statusPill.innerText = "Camera Permission Denied";
         statusPill.style.background = "rgba(239, 68, 68, 0.2)";
         statusPill.style.color = "#ef4444";
-        alert("Camera error: " + err.message + "\nMake sure you granted camera permissions in Safari.");
+        alert("Camera error: " + err.message);
       }
     }
 
-    // --- Scanner Loop ---
     function scanLoop() {
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
@@ -10383,7 +10392,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
           document.getElementById("cam-monitor").style.borderColor = "#3b82f6";
         }
 
-        // Retransmission watchdog
         if (totalChunks !== null && !isComplete) {
           if (Date.now() - lastChunkReceivedTime > 1500) {
             triggerMissingFrameNACK();
@@ -10393,9 +10401,12 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       requestAnimationFrame(scanLoop);
     }
 
-    // --- Chunk Processing ---
+    // Robust Payload Parser (Safe against B85 '|' collisions)
     function handleIncomingPayload(payload) {
       if (isComplete) return;
+
+      // Update Debug Log on screen
+      debugLog.innerText = "Scanned: " + (payload.length > 28 ? payload.substring(0, 28) + "..." : payload);
 
       if (payload === "DONE_BLAST") {
         triggerMissingFrameNACK();
@@ -10403,25 +10414,32 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       }
 
       if (payload.startsWith("D|")) {
-        const parts = payload.split("|");
-        if (parts.length === 5) {
-          targetFileName = parts[1];
-          const idx = parseInt(parts[2]);
-          totalChunks = parseInt(parts[3]);
-          const chunkData = parts[4];
+        // Extract first 4 '|' indices to preserve payload that might contain '|'
+        let p1 = payload.indexOf("|", 0);
+        let p2 = payload.indexOf("|", p1 + 1);
+        let p3 = payload.indexOf("|", p2 + 1);
+        let p4 = payload.indexOf("|", p3 + 1);
 
-          if (!receivedChunks[idx]) {
-            receivedChunks[idx] = chunkData;
-            lastChunkReceivedTime = Date.now();
-            updateHUD();
+        if (p1 !== -1 && p2 !== -1 && p3 !== -1 && p4 !== -1) {
+          targetFileName = payload.substring(p1 + 1, p2);
+          const idx = parseInt(payload.substring(p2 + 1, p3), 10);
+          totalChunks = parseInt(payload.substring(p3 + 1, p4), 10);
+          const chunkData = payload.substring(p4 + 1);
 
-            if (currentQRString !== AUTH_KEY && getMissingIndices().length === 0) {
-              setDisplayQR(AUTH_KEY, "Receiving Data Stream...", "rgba(59, 130, 246, 0.2)", "#3b82f6");
+          if (!isNaN(idx) && !isNaN(totalChunks)) {
+            if (!receivedChunks[idx]) {
+              receivedChunks[idx] = chunkData;
+              lastChunkReceivedTime = Date.now();
+              updateHUD();
+
+              if (currentQRString !== AUTH_KEY && getMissingIndices().length === 0) {
+                setDisplayQR(AUTH_KEY, "Receiving Data Stream...", "rgba(59, 130, 246, 0.2)", "#3b82f6");
+              }
             }
-          }
 
-          if (Object.keys(receivedChunks).length === totalChunks && !isComplete) {
-            finalizeReconstruction();
+            if (Object.keys(receivedChunks).length === totalChunks && !isComplete) {
+              finalizeReconstruction();
+            }
           }
         }
       }
@@ -10511,10 +10529,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       document.getElementById("hud-frames").innerText = "0/0 frames";
       document.getElementById("hud-percent").innerText = "0%";
       document.getElementById("missing-container").style.display = "none";
+      debugLog.innerText = "Last Scanned: (none)";
       setDisplayQR(AUTH_KEY, "Camera Active: Watching for PC...", "rgba(59, 130, 246, 0.2)", "#3b82f6");
     }
 
-    // Initial trigger
     window.addEventListener("DOMContentLoaded", initCamera);
   </script>
 </body>
