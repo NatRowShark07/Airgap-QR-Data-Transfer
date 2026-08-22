@@ -10149,7 +10149,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       color: var(--primary);
     }
 
-    /* Center QR Container */
+    /* Center QR Stage */
     #viewport-container {
       width: 300px;
       height: 300px;
@@ -10241,18 +10241,15 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     <div id="status-pill">Initializing Camera...</div>
   </header>
 
-  <!-- Central Dedicated QR Code Display -->
   <div id="viewport-container">
     <div id="qrcode-view"></div>
   </div>
 
-  <!-- Live Mini Camera Monitor -->
   <div id="cam-monitor">
     <video id="video-view" autoplay playsinline webkit-playsinline muted></video>
   </div>
   <canvas id="hidden-canvas"></canvas>
 
-  <!-- Live Transfer HUD -->
   <div id="hud">
     <div class="hud-row">
       <span id="hud-filename" style="font-weight: 600;">Awaiting stream...</span>
@@ -10279,37 +10276,16 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   <script>
     const AUTH_KEY = "xnTTp2rHtQKmZ2hB0m9pOxxnsApAdmrN\n85jGqGsV7X1f5EGtW0VXCqjgFOExOvyY";
 
-    // Base85 Decoder
-    const B85_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
-    const B85_MAP = {};
-    for (let i = 0; i < B85_CHARS.length; i++) B85_MAP[B85_CHARS[i]] = i;
-
-    function decodeBase85(str) {
-      str = str.replace(/[\r\n\s]/g, "");
-      let out = [];
-      let i = 0;
-
-      while (i < str.length) {
-        let chunkLen = Math.min(5, str.length - i);
-        let acc = 0;
-        for (let j = 0; j < chunkLen; j++) {
-          let char = str[i + j];
-          if (B85_MAP[char] === undefined) throw new Error("Invalid Base85 char: " + char);
-          acc = acc * 85 + B85_MAP[char];
-        }
-        if (chunkLen < 5) {
-          for (let j = 0; j < 5 - chunkLen; j++) acc = acc * 85 + 84;
-        }
-        let b0 = (acc >>> 24) & 0xff;
-        let b1 = (acc >>> 16) & 0xff;
-        let b2 = (acc >>> 8) & 0xff;
-        let b3 = acc & 0xff;
-
-        let bytesToAdd = [b0, b1, b2, b3].slice(0, chunkLen - 1);
-        for (let b of bytesToAdd) out.push(b);
-        i += chunkLen;
+    // Standard Base64 to Uint8Array Conversion
+    function decodeBase64ToBytes(b64String) {
+      const cleanB64 = b64String.replace(/[\r\n\s]/g, "");
+      const binaryString = atob(cleanB64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
-      return new Uint8Array(out);
+      return bytes;
     }
 
     let qrGenerator = null;
@@ -10392,6 +10368,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
           document.getElementById("cam-monitor").style.borderColor = "#3b82f6";
         }
 
+        // Retransmission watchdog
         if (totalChunks !== null && !isComplete) {
           if (Date.now() - lastChunkReceivedTime > 1500) {
             triggerMissingFrameNACK();
@@ -10401,11 +10378,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       requestAnimationFrame(scanLoop);
     }
 
-    // Robust Payload Parser (Safe against B85 '|' collisions)
     function handleIncomingPayload(payload) {
       if (isComplete) return;
 
-      // Update Debug Log on screen
       debugLog.innerText = "Scanned: " + (payload.length > 28 ? payload.substring(0, 28) + "..." : payload);
 
       if (payload === "DONE_BLAST") {
@@ -10414,7 +10389,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       }
 
       if (payload.startsWith("D|")) {
-        // Extract first 4 '|' indices to preserve payload that might contain '|'
         let p1 = payload.indexOf("|", 0);
         let p2 = payload.indexOf("|", p1 + 1);
         let p3 = payload.indexOf("|", p2 + 1);
@@ -10437,6 +10411,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
               }
             }
 
+            // Only attempt reconstruction if EVERY frame is present
             if (Object.keys(receivedChunks).length === totalChunks && !isComplete) {
               finalizeReconstruction();
             }
@@ -10493,14 +10468,18 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       isComplete = true;
 
       try {
-        let fullB85 = "";
+        let fullB64 = "";
         for (let i = 0; i < totalChunks; i++) {
-          fullB85 += receivedChunks[i];
+          fullB64 += receivedChunks[i];
         }
 
-        const compressedData = decodeBase85(fullB85);
+        // 1. Decode Base64 -> Compressed Binary
+        const compressedData = decodeBase64ToBytes(fullB64);
+
+        // 2. Decompress using Pako.js (ZLIB)
         const decompressedData = pako.inflate(compressedData);
 
+        // 3. Trigger Native Download
         const blob = new Blob([decompressedData], { type: "application/octet-stream" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -10516,6 +10495,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         scanStatus.innerText = "Complete";
       } catch (err) {
         alert("Reconstruction error: " + err.message);
+        isComplete = false; // Allow recovery if corrupted
       }
     }
 
