@@ -10127,17 +10127,31 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 12px;
-      justify-content: space-between;
-	  gap: 16px;
-    }
-    header { text-align: center; margin-top: 4px; width: 100%; max-width: 360px; }
+	  background-color: var(--bg);
+	  color: var(--text);
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  
+	  /* Use dynamic viewport height and keep elements stacked cleanly */
+	  min-height: 100dvh;
+	  justify-content: flex-start;
+	  
+	  /* Fixed uniform gap between title, QR, HUD, and buttons */
+	  gap: 12px;
+	
+	  /* Respect iPhone Notch/Dynamic Island and Home Indicator Bar */
+	  padding-top: max(16px, env(safe-area-inset-top));
+	  padding-bottom: max(16px, env(safe-area-inset-bottom));
+	  padding-left: 16px;
+	  padding-right: 16px;
+	}
+    header {
+	  text-align: center;
+	  margin-top: 0;
+	  width: 100%;
+	  max-width: 360px;
+	}
     header h1 { font-size: 1.15rem; font-weight: 700; }
     #status-pill {
       display: inline-block;
