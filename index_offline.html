@@ -10141,8 +10141,8 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 	  gap: 30px;
 	
 	  /* Respect iPhone Notch/Dynamic Island and Home Indicator Bar */
-	  padding-top: max(30px, env(safe-area-inset-top));
-	  padding-bottom: max(30px, env(safe-area-inset-bottom));
+	  padding-top: max(16px, env(safe-area-inset-top));
+	  padding-bottom: max(16px, env(safe-area-inset-bottom));
 	  padding-left: 16px;
 	  padding-right: 16px;
 	}
@@ -10165,15 +10165,15 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     }
 
     #viewport-container {
-      width: 320px;
-      height: 320px;
+      width: 280px;
+      height: 280px;
       background: #ffffff;
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-      padding: 30px;
+      padding: 6px;
     }
     #qrcode-view {
       width: 100%;
@@ -10185,19 +10185,19 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     #qrcode-view img { width: 100%; height: 100%; object-fit: contain; }
 
     #cam-monitor {
-      position: fixed;
-      top: 20px;
-      right: 16px;
-      width: 75px;
-      height: 75px;
-      border-radius: 12px;
-      border: 3px solid var(--primary);
-      overflow: hidden;
-      background: #000;
-      z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      transition: border-color 0.15s ease;
-    }
+	  position: fixed;
+	  top: calc(env(safe-area-inset-top) + 40px);
+	  right: 16px;
+	  width: 75px;
+	  height: 75px;
+	  border-radius: 12px;
+	  border: 3px solid var(--primary);
+	  overflow: hidden;
+	  background: #000;
+	  z-index: 100;
+	  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+	  transition: border-color 0.15s ease;
+	}
     #video-view {
       width: 100%;
       height: 100%;
