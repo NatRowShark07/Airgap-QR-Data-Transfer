@@ -10396,23 +10396,27 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
   <div id="auth-panel">
     <div class="auth-title">
       <span>🔐 Receiver Authentication & Key</span>
-      <span id="auth-indicator" style="color: var(--success); font-size: 0.7rem;">● Ready</span>
+      <span id="auth-indicator" style="color: var(--warning); font-size: 0.7rem;">○ Awaiting Credentials</span>
     </div>
     <div class="auth-inputs">
       <div class="auth-input-group">
         <label for="input-username">Username</label>
-        <input type="text" id="input-username" value="Nathaniel" placeholder="e.g. Nathaniel" autocomplete="off" />
+        <input type="text" id="input-username" value="" placeholder="Enter Username (e.g. Nathaniel)" autocomplete="off" onkeydown="if(event.key==='Enter') applyCredentials();" />
       </div>
       <div class="auth-input-group">
         <label for="input-password">Shared Password</label>
-        <input type="password" id="input-password" value="AirgapSecurePass2026!" placeholder="Password" autocomplete="off" />
+        <input type="password" id="input-password" value="" placeholder="Enter Shared Password" autocomplete="off" onkeydown="if(event.key==='Enter') applyCredentials();" />
       </div>
     </div>
-    <button class="btn-update-auth" onclick="applyCredentials()">🔄 Update Auth QR & Encryption Key</button>
+    <button class="btn-update-auth" onclick="applyCredentials()">🔄 Generate Auth QR & Encryption Key</button>
   </div>
 
   <div id="viewport-container">
-    <div id="qrcode-view"></div>
+    <div id="qrcode-placeholder" style="color: #64748b; text-align: center; font-size: 0.85rem; font-weight: 500; padding: 24px; line-height: 1.5;">
+      <div style="font-size: 2rem; margin-bottom: 8px;">🔐</div>
+      Enter your <strong>Username</strong> and <strong>Password</strong> above, then click <em>"Generate Auth QR"</em>.
+    </div>
+    <div id="qrcode-view" style="display: none;"></div>
   </div>
 
   <div id="cam-monitor">
@@ -10436,7 +10440,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       <div style="font-size: 0.7rem; color: var(--danger); margin-bottom: 2px;">Missing Packets:</div>
       <div id="missing-tags"></div>
     </div>
-    <div id="debug-log">Status: Displaying Auth QR. Point Transmitter camera at this screen.</div>
+    <div id="debug-log">Status: Please enter Username and Password above.</div>
   </div>
 
   <div class="controls">
@@ -10461,17 +10465,6 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
     // =====================================================================
 
     const MAGIC_HEADER = "AQ02"; // 4 bytes magic string
-
-    function getStoredUsername() {
-      return localStorage.getItem("aqrdt_username") || "Nathaniel";
-    }
-
-    function getStoredPassword() {
-      return localStorage.getItem("aqrdt_password") || "AirgapSecurePass2026!";
-    }
-
-    document.getElementById("input-username").value = getStoredUsername();
-    document.getElementById("input-password").value = getStoredPassword();
 
     function computeAuthSignature(user, pass) {
       const normUser = user.trim().toLowerCase();
@@ -10548,9 +10541,9 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
     // --- Application State & UI Controller ---
     // =====================================================================
 
-    let currentUser = getStoredUsername();
-    let currentPass = getStoredPassword();
-    let currentAuthPayload = generateAuthQRPayload(currentUser, currentPass);
+    let currentUser = "";
+    let currentPass = "";
+    let currentAuthPayload = "";
 
     let qrGenerator = null;
     let video = document.getElementById("video-view");
@@ -10569,30 +10562,56 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
     const scanStatus = document.getElementById("scan-status");
     const debugLog = document.getElementById("debug-log");
     const qrView = document.getElementById("qrcode-view");
+    const qrPlaceholder = document.getElementById("qrcode-placeholder");
     const downloadBtn = document.getElementById("download-btn");
 
-    qrGenerator = new QRCode(qrView, {
-      text: currentAuthPayload,
-      width: 250,
-      height: 250,
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    currentQRString = currentAuthPayload;
-
     function applyCredentials() {
-      const u = document.getElementById("input-username").value.trim() || "Nathaniel";
-      const p = document.getElementById("input-password").value.trim() || "AirgapSecurePass2026!";
+      const u = document.getElementById("input-username").value.trim();
+      const p = document.getElementById("input-password").value.trim();
+
+      if (!u || !p) {
+        statusPill.innerText = "Please Enter Username & Password";
+        statusPill.style.background = "rgba(239, 68, 68, 0.2)";
+        statusPill.style.color = "#ef4444";
+        document.getElementById("auth-indicator").innerHTML = "○ Awaiting Credentials";
+        document.getElementById("auth-indicator").style.color = "var(--warning)";
+        debugLog.innerText = "Error: Both username and password are required.";
+        return;
+      }
+
       currentUser = u;
       currentPass = p;
-      localStorage.setItem("aqrdt_username", u);
-      localStorage.setItem("aqrdt_password", p);
 
       currentAuthPayload = generateAuthQRPayload(currentUser, currentPass);
-      setDisplayQR(currentAuthPayload, `Auth QR: Ready [User: ${currentUser}]`, "rgba(16, 185, 129, 0.2)", "#10b981");
-      debugLog.innerText = `Auth QR updated for user '${currentUser}'. Ready for Transmitter.`;
+
+      qrPlaceholder.style.display = "none";
+      qrView.style.display = "flex";
+
+      if (!qrGenerator) {
+        qrGenerator = new QRCode(qrView, {
+          text: currentAuthPayload,
+          width: 250,
+          height: 250,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        qrGenerator.clear();
+        qrGenerator.makeCode(currentAuthPayload);
+      }
+      currentQRString = currentAuthPayload;
+
+      statusPill.innerText = `Auth QR: Ready [User: ${currentUser}]`;
+      statusPill.style.background = "rgba(16, 185, 129, 0.2)";
+      statusPill.style.color = "#10b981";
+
+      document.getElementById("auth-indicator").innerHTML = `● Active: ${currentUser}`;
+      document.getElementById("auth-indicator").style.color = "var(--success)";
+
+      debugLog.innerText = `Auth QR active for user '${currentUser}'. Point Transmitter camera at this screen.`;
     }
 
     function setDisplayQR(text, label, pillBg, pillColor) {
+      if (!qrGenerator) return;
       if (currentQRString === text) return;
       currentQRString = text;
       qrGenerator.clear();
@@ -10615,7 +10634,11 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
         video.setAttribute("webkit-playsinline", "true");
         await video.play();
 
-        statusPill.innerText = `Camera Active: Ready for User [${currentUser}]`;
+        if (currentUser) {
+          statusPill.innerText = `Camera Active: Ready for User [${currentUser}]`;
+        } else {
+          statusPill.innerText = "Camera Active: Enter Credentials";
+        }
         requestAnimationFrame(scanLoop);
       } catch (err) {
         statusPill.innerText = "Camera Permission Denied";
@@ -10892,8 +10915,17 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       document.getElementById("hud-frames").innerText = "0/0 frames";
       document.getElementById("hud-percent").innerText = "0%";
       document.getElementById("missing-container").style.display = "none";
-      debugLog.innerText = `Auth QR Active for user '${currentUser}'. Ready for Transmitter.`;
-      setDisplayQR(currentAuthPayload, `Camera Active: Ready for User [${currentUser}]`, "rgba(56, 189, 248, 0.15)", "#38bdf8");
+      if (currentUser) {
+        debugLog.innerText = `Auth QR Active for user '${currentUser}'. Ready for Transmitter.`;
+        setDisplayQR(currentAuthPayload, `Camera Active: Ready for User [${currentUser}]`, "rgba(56, 189, 248, 0.15)", "#38bdf8");
+      } else {
+        debugLog.innerText = "Status: Please enter Username and Password above.";
+        qrPlaceholder.style.display = "block";
+        qrView.style.display = "none";
+        statusPill.innerText = "Camera Active: Enter Credentials";
+        statusPill.style.background = "rgba(56, 189, 248, 0.15)";
+        statusPill.style.color = "#38bdf8";
+      }
     }
 
     window.addEventListener("DOMContentLoaded", initCamera);
