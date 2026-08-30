@@ -2,7 +2,7 @@
 
 A high-speed, optical wireless air-gapped data transfer protocol designed for secure, internet-free communications between computers and devices using terminal QR streams, camera computer vision, dynamic user authentication, SHA-256 CTR AEAD file encryption, 100% lossless compression, and ARQ missing-frame retransmission.
 
-![AQRDT Flow Chart](AQRDT_Flow_Chart.png)
+![AQRDT Flow Chart](Images/AQRDT_Flow_Chart.png)
 
 ---
 
