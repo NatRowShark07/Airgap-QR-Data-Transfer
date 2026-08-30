@@ -10161,7 +10161,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 12px;
+      padding: 30px;
       justify-content: space-between;
     }
     header { text-align: center; margin-top: 4px; width: 100%; max-width: 380px; }
@@ -10185,7 +10185,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 10px 14px;
+      padding: 10px 0px;
       margin: 8px 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
@@ -10200,7 +10200,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
     }
     .auth-inputs {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 0.8fr 1fr;
       gap: 8px;
     }
     .auth-input-group {
@@ -10256,7 +10256,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-      padding: 8px;
+      padding: 0px;
       position: relative;
     }
     #qrcode-view {
@@ -10270,7 +10270,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
 
     #cam-monitor {
       position: fixed;
-      top: 16px;
+      top: 40px;
       right: 14px;
       width: 70px;
       height: 70px;
@@ -10296,7 +10296,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 10px 14px;
+      padding: 10px 0px;
     }
     .hud-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
     .progress-bar { width: 100%; height: 6px; background: #334155; border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
@@ -10401,7 +10401,7 @@ c.mode.CTRGladman=function(){var t=c.lib.BlockCipherMode.extend();function e(t){
     <div class="auth-inputs">
       <div class="auth-input-group">
         <label for="input-username">Username</label>
-        <input type="text" id="input-username" value="" placeholder="Enter Username (e.g. Nathaniel)" autocomplete="off" onkeydown="if(event.key==='Enter') applyCredentials();" />
+        <input type="text" id="input-username" value="" placeholder="Enter Username" autocomplete="off" onkeydown="if(event.key==='Enter') applyCredentials();" />
       </div>
       <div class="auth-input-group">
         <label for="input-password">Shared Password</label>
