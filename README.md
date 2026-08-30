@@ -80,20 +80,25 @@ python "Duplex AQRDT.py" sender --file Data.txt --fps 20.0
 
 The following images depict the screens you will encounter when you run the program. Note that some of the screens have been altered to redact PII and other imformation.
 
-1. Enter the filepath for the file that you want to transmit.
-![Choose filepath to transmit](Images/Choose_File.png)
+1. Enter the filepath for the file that you want to transmit
+   
+   ![Choose filepath to transmit](Images/Choose_File.png)
 
 2. Waiting for receiver to authenticate
-![Waiting for QR code to authenticate](Images/Waiting_Transmit.png)
 
-3. Data transmitted to receiver
-![Data transmission](Images/Data_Transmit.png)
+   ![Waiting for QR code to authenticate](Images/Waiting_Transmit.png)
 
-4. Waiting for requests for retransmission of dropped packets or acknowledgement of completed transmission
-![Waiting for acknowledgement](Images/Initial_Burst_Complete.png)
+4. Data transmitted to receiver
 
-5. Completed data transfer
-![Completed transfer acknowledgement](Images/Completed_Transfer.png)
+   ![Data transmission](Images/Data_Transmit.png)
+
+6. Waiting for requests for retransmission of dropped packets or acknowledgement of completed transmission
+
+   ![Waiting for acknowledgement](Images/Initial_Burst_Complete.png)
+
+8. Completed data transfer
+
+   ![Completed transfer acknowledgement](Images/Completed_Transfer.png)
 
 ### 2. Web Receiver Mode (`index_offline.html`)
 1. Open `index_offline.html` in any browser (Chrome, Edge, Safari, Firefox).
