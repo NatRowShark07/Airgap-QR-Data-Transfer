@@ -42,13 +42,14 @@ A high-speed, optical wireless air-gapped data transfer protocol designed for se
 
 ```
 Airgap QR Data Transfer/
-    ├── .env                # Transmitter credentials configuration
-    ├── Duplex AQRDT.py     # Main Python Transmitter, Receiver & Simulator CLI
-    ├── index_offline.html  # Offline Web Receiver (Zero-dependency PWA)
-    ├── build_offline_pwa.py# Script to rebuild index_offline.html bundle
-    ├── test_aqrdt.py       # Comprehensive unit test suite
-    ├── Data.txt            # Sample data file for test transfers
-    └── README.md           # Documentation
+  ├── V2/
+  | ├── .env                 # Transmitter credentials configuration
+  | ├── Duplex AQRDT.py      # Main Python Transmitter, Receiver & Simulator CLI
+  | ├── index_offline.html   # Offline Web Receiver (Zero-dependency PWA)
+  | ├── build_offline_pwa.py # Script to rebuild index_offline.html bundle
+  | ├── test_aqrdt.py        # Comprehensive unit test suite
+  | ├── Data.txt             # Sample data file for test transfers
+  └── README.md              # Documentation
 ```
 
 ---
