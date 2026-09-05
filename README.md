@@ -101,23 +101,22 @@ The following images depict the screens you will encounter when you run the prog
    ![Completed transfer acknowledgement](Images/Completed_Transfer.png)
 
 ### 2. Web Receiver Mode (`index_offline.html`)
-##Method A:
-
 ![Receiver Web App](Images/iPhone_App.PNG)
 
+Method A:
 1. Open `index_offline.html` in any browser (Chrome, Edge, Safari, Firefox).
 2. Enter your **Username** and **Password** (defaults match `.env`).
 3. Point the Transmitter camera at the displayed Auth QR code.
 4. Once the stream begins, point the Receiver camera at the Transmitter's terminal screen.
 5. Upon reception, the file is automatically decrypted, decompressed, verified, and downloaded!
 
-##Method B (iPhone)
+Method B (iPhone):
 1. Go to `https://natrowshark07.github.io/Airgap-QR-Data-Transfer/V2/index_offline.html` in Safari.
 2. Select the `...` icon from the toolbar at the bottom of the screen, then select the `Share` option.
 3. Select the `View More` option or swipe up then select the `Add to Home Screen` option.
 4. A menu will open asking you to name the app, you can skip this part and select the `Add` button.
-
-An icon shortcut for the Web Receiver should not populate on your home screen.
+5. An icon shortcut for the Web Receiver should not populate on your home screen.
+6. Follow steps 2-5 from Method A.
 
 ### 3. CLI Terminal Receiver Mode
 To receive files on a second terminal/headless machine:
