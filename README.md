@@ -101,7 +101,7 @@ The following images depict the screens you will encounter when you run the prog
    ![Completed transfer acknowledgement](Images/Completed_Transfer.png)
 
 ### 2. Web Receiver Mode (`index_offline.html`)
-##Method A:##
+##Method A:
 
 ![Receiver Web App](Images/iPhone_App.PNG)
 
@@ -111,7 +111,7 @@ The following images depict the screens you will encounter when you run the prog
 4. Once the stream begins, point the Receiver camera at the Transmitter's terminal screen.
 5. Upon reception, the file is automatically decrypted, decompressed, verified, and downloaded!
 
-##Method B (iPhone)##
+##Method B (iPhone)
 1. Go to `https://natrowshark07.github.io/Airgap-QR-Data-Transfer/V2/index_offline.html` in Safari.
 2. Select the `...` icon from the toolbar at the bottom of the screen, then select the `Share` option.
 3. Select the `View More` option or swipe up then select the `Add to Home Screen` option.
