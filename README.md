@@ -1,4 +1,4 @@
-# Airgapped QR Data Transfer (AQRDT v2.0)
+# Airgapped QR Data Transfer (AQRDT v3.0)
 
 A high-speed, optical wireless air-gapped data transfer protocol designed for secure, internet-free communications between computers and devices using terminal QR streams, camera computer vision, dynamic user authentication, SHA-256 CTR AEAD file encryption, 100% lossless compression, and ARQ missing-frame retransmission.
 
@@ -6,11 +6,11 @@ A high-speed, optical wireless air-gapped data transfer protocol designed for se
 
 ---
 
-## 🌟 Key Features in v2.0
+## 🌟 Key Features in v3.0
 
 1. **🔐 Dynamic User Authentication & Identifying Auth QR Codes**:
    - **Transmitter**: Stores authorized `AQRDT_USERNAME` and `AQRDT_PASSWORD` in a secure `.env` file.
-   - **Receiver (Web & CLI)**: User enters their username and password which is transformed into a unique cryptographic Auth QR code (`AUTH|AQRDT|v2|<username>|<signature>`).
+   - **Receiver (Web & CLI)**: User enters their username and password which is transformed into a unique cryptographic Auth QR code (`AUTH|AQRDT|v3|<username>|<signature>`).
    - Transmitter verifies the identity and signature of the receiver before initiating the optical file stream.
 
 2. **🛡️ End-to-End SHA-256 CTR AEAD File Encryption**:
@@ -42,7 +42,7 @@ A high-speed, optical wireless air-gapped data transfer protocol designed for se
 
 ```
 Airgap QR Data Transfer/
-  ├── V2/
+  ├── V3/
   | ├── .env                 # Transmitter credentials configuration
   | ├── Duplex AQRDT.py      # Main Python Transmitter, Receiver & Simulator CLI
   | ├── index_offline.html   # Offline Web Receiver (Zero-dependency PWA)
@@ -56,7 +56,7 @@ Airgap QR Data Transfer/
 
 ## ⚙️ Configuration (`.env`)
 
-Create or edit `.env` in the `V2` directory:
+Create or edit `.env` in the `V3` directory:
 
 ```env
 # Authorized Username
@@ -111,7 +111,7 @@ Method A:
 5. Upon reception, the file is automatically decrypted, decompressed, verified, and downloaded!
 
 Method B (iPhone):
-1. Go to `https://natrowshark07.github.io/Airgap-QR-Data-Transfer/V2/index_offline.html` in Safari.
+1. Go to `https://natrowshark07.github.io/Airgap-QR-Data-Transfer/V3/index_offline.html` in Safari.
 2. Select the `...` icon from the toolbar at the bottom of the screen, then select the `Share` option.
 3. Select the `View More` option or swipe up then select the `Add to Home Screen` option.
 4. A menu will open asking you to name the app, you can skip this part and select the `Add` button.
